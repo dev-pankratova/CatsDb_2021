@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="73dp" />
+
+    <TextView
+        android:id="@+id/id_nameTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cat_name_text"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/id_ageTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cat_age_text"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="0.658"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/id_nameTV" />
+
+    <TextView
+        android:id="@+id/id_breedTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cat_breed_text"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="0.575"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/id_ageTV" />
+
+    <TextView
+        android:id="@+id/id_name_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/content_name"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/id_nameTV"
+        app:layout_constraintStart_toStartOf="@+id/guideline" />
+
+    <TextView
+        android:id="@+id/id_age_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/content_age"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/id_ageTV"
+        app:layout_constraintStart_toStartOf="@+id/guideline" />
+
+    <TextView
+        android:id="@+id/id_breed_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/content_breed"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/id_breedTV"
+        app:layout_constraintStart_toStartOf="@+id/guideline" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

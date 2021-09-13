@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">Cats.db</string>
+    <string name="app_name">Cats</string>
+    <string name="cat_name_text">Name:</string>
+    <string name="cat_age_text">Age:</string>
+    <string name="cat_breed_text">Breed:</string>
+    <string name="content_name">…name…</string>
+    <string name="content_age">…age…</string>
+    <string name="content_breed">…breed…</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="breed">Breed</string>
+    <string name="add">Add</string>
+    <string name="clear">Clear</string>
+    <string name="sorting_by_name">sorting by name…</string>
+    <string name="sorting_by_age">sorting by age…</string>
+    <string name="sorting_by_breed">sorting by breed…</string>
 </resources>

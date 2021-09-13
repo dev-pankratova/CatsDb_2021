@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:key="switchName"
+        app:summary="@string/sorting_by_name"
+        app:title="@string/name">
+        <intent
+            android:data="sortByName"
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.project.catsdb.MainActivity"
+            android:targetPackage="com.project.catsdb" />
+    </Preference>
+    <Preference
+        app:key="switchAge"
+        app:summary="@string/sorting_by_age"
+        app:title="@string/age">
+        <intent
+            android:data="sortByAge"
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.project.catsdb.MainActivity"
+            android:targetPackage="com.project.catsdb" />
+    </Preference>
+    <Preference
+        app:key="switchBreed"
+        app:summary="@string/sorting_by_breed"
+        app:title="@string/breed">
+        <intent
+            android:data="sortByBreed"
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.project.catsdb.MainActivity"
+            android:targetPackage="com.project.catsdb" />
+    </Preference>
+</PreferenceScreen>

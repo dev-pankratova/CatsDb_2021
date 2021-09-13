@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    tools:context=".AddNew">
+
+    <EditText
+        android:id="@+id/id_name_ET"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/name"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/id_age_ET"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <EditText
+        android:id="@+id/id_age_ET"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:ems="10"
+        android:hint="@string/age"
+        android:inputType="number"
+        app:layout_constraintBottom_toTopOf="@+id/id_breed_ET"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/id_name_ET" />
+
+    <EditText
+        android:id="@+id/id_breed_ET"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/breed"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/add_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/id_age_ET" />
+
+    <Button
+        android:id="@+id/add_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/id_breed_ET" />
+</androidx.constraintlayout.widget.ConstraintLayout>
