@@ -12,11 +12,11 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_above="@+id/float_btn"
+        android:layout_alignParentEnd="true"
         tools:listitem="@layout/list_item" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

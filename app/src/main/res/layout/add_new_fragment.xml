@@ -14,6 +14,7 @@
         android:ems="10"
         android:hint="@string/name"
         android:inputType="textPersonName"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@+id/id_age_ET"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +55,7 @@
         android:text="@string/add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/id_breed_ET" />
 </androidx.constraintlayout.widget.ConstraintLayout>

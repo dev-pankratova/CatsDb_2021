@@ -5,12 +5,15 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.project.catsdb.databinding.ActivityMainBinding
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.project.catsdb.db.AppDatabase
+import com.project.catsdb.db.CatsDao
+import com.project.catsdb.listeners.OnAddNewCatClickListener
+import com.project.catsdb.listeners.OnAddNewCatInDbListener
 import com.project.catsdb.settings.SortingFragment
 
 class MainActivity : AppCompatActivity() {
-
-    private var binding: ActivityMainBinding? = null
 
     private var _catsListFragment: MainListOfCats? = null
     private val catsListFragment get() = _catsListFragment
@@ -26,8 +29,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         _sortingFragment = SortingFragment.newInstance()
+        _addNewFragment = AddNew.newInstance()
         openMainListOfCats()
         setFloatingBtnAction()
+        addNewCatInDb()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -39,8 +44,6 @@ class MainActivity : AppCompatActivity() {
         val id = item.itemId
         if (id == R.id.item1) {
             sortingFragment?.let { attachFragment(it) }
-            //val intent = Intent(this, SortingActivity::class.java)
-            //startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -51,12 +54,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setFloatingBtnAction() {
-        binding
+        catsListFragment?.setInterface(object : OnAddNewCatClickListener {
+            override fun btnIsClicked(bool: Boolean) {
+                if (bool) addNewFragment?.let { attachFragment(it) }
+            }
+        })
+    }
+
+    private fun addNewCatInDb() {
+        addNewFragment?.setInterface(object : OnAddNewCatInDbListener {
+            override fun addInDb(bool: Boolean) {
+                if (bool) catsListFragment?.let { attachFragment(it) }
+            }
+        })
     }
 
     private fun attachFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.container, fragment)
+            addToBackStack(null)
             commit()
         }
     }

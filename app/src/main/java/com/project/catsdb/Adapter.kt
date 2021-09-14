@@ -1,13 +1,14 @@
 package com.project.catsdb
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.project.catsdb.db.dao.Table
+import com.project.catsdb.db.Cats
 
-class Adapter(val listItems: MutableList<Table>) : RecyclerView.Adapter<Adapter.ListViewHolder>() {
+class Adapter(private var listItems: List<Cats>) : RecyclerView.Adapter<Adapter.ListViewHolder>() {
 
     inner class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.id_name_content)
@@ -18,8 +19,7 @@ class Adapter(val listItems: MutableList<Table>) : RecyclerView.Adapter<Adapter.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val itemView: View =
             LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
-        val holder = ListViewHolder(itemView)
-        return holder
+        return ListViewHolder(itemView)
     }
 
     override fun getItemCount(): Int {
@@ -31,5 +31,11 @@ class Adapter(val listItems: MutableList<Table>) : RecyclerView.Adapter<Adapter.
         holder.name.text = myListItem.name
         holder.age.text = myListItem.age.toString()
         holder.breed.text = myListItem.breed
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setData(listItems: List<Cats>) {
+        this.listItems = listItems
+        notifyDataSetChanged()
     }
 }
