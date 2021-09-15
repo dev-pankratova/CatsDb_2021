@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.catsdb.databinding.ListOfCatsFragmentBinding
 import com.project.catsdb.db.AppDatabase
+import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
 import com.project.catsdb.listeners.OnAddNewCatClickListener
 
@@ -43,11 +44,11 @@ class MainListOfCats : Fragment() {
         super.onResume()
         fillAdapter()
     }
-
+    var watchAdapter: Adapter? = null
     private fun fillAdapter() {
         val catsList = catsDao?.getAll()
 
-        val watchAdapter = catsList?.let { Adapter(it) }
+        watchAdapter = catsList?.let { Adapter(it) }
         binding?.recycler?.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = watchAdapter
@@ -73,13 +74,16 @@ class MainListOfCats : Fragment() {
     }
 
     private fun setClickClearBtn() {
-        binding?.buttonClear?.setOnClickListener { clearDb() }
+        binding?.buttonClear?.setOnClickListener {
+            clearDb()
+            clearRecyclerView() }
     }
 
-    //TODO clearDb
     private fun clearDb() {
         catsDao?.deleteAll()
+    }
 
+    private fun clearRecyclerView() {
         val watchAdapter = Adapter(listOf())
         binding?.recycler?.apply {
             layoutManager = LinearLayoutManager(context)
@@ -99,9 +103,11 @@ class MainListOfCats : Fragment() {
     }
 
     companion object {
-        fun newInstance(): MainListOfCats {
+        fun newInstance(/*model: Cats? = null*/): MainListOfCats {
             val fragment = MainListOfCats()
-
+            /*val args = Bundle()
+            args.putSerializable("CatsItem", model)
+            fragment.arguments = args*/
             return fragment
         }
     }

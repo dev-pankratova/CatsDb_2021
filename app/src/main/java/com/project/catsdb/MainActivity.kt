@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.catsdb.db.AppDatabase
+import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
+import com.project.catsdb.listeners.OnAdapterClick
 import com.project.catsdb.listeners.OnAddNewCatClickListener
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
 import com.project.catsdb.settings.SortingFragment
@@ -23,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     private var _sortingFragment: SortingFragment? = null
     private val sortingFragment get() = _sortingFragment
+
+    private var adapterCats: Adapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +54,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun openMainListOfCats() {
         _catsListFragment = MainListOfCats.newInstance()
+
+        catsListFragment?.watchAdapter?.getDataFromAdapter(object : OnAdapterClick {
+            override fun getCatsData(cat: Cats) {
+                attachFragment(AddNew.newInstance(cat))
+                //addNewFragment?.let { attachFragment(it) }
+            }
+        })
+
         catsListFragment?.let { attachFragment(it) }
     }
 

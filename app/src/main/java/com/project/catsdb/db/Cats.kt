@@ -2,6 +2,7 @@ package com.project.catsdb.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity
 data class Cats (
@@ -10,4 +11,4 @@ data class Cats (
     var name: String? = null,
     var age: String? = null,
     var breed: String? = null
-)
+): Serializable

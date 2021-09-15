@@ -7,7 +7,6 @@ import com.project.catsdb.databinding.AddNewFragmentBinding
 import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
-import com.project.catsdb.listeners.OnAddNewCatClickListener
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
 
 class AddNew : Fragment() {
@@ -35,6 +34,14 @@ class AddNew : Fragment() {
         catsDao = db?.catsDao()
 
         binding?.addButton?.setOnClickListener { addToDB() }
+
+        val item = arguments?.getSerializable("CatsItem")
+
+        if (item != null) {
+            fillDataForUpdate(item as Cats)
+            renameButton()
+            setUpdateClick(item)
+        }
     }
 
     override fun onResume() {
@@ -54,6 +61,23 @@ class AddNew : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.findItem(R.id.item1).isVisible = false
         return super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    private fun fillDataForUpdate(item: Cats) {
+        binding?.idNameET?.setText(item.name)
+        binding?.idAgeET?.setText(item.age)
+        binding?.idBreedET?.setText(item.breed)
+    }
+
+    private fun renameButton() {
+        binding?.addButton?.text = "Update"
+    }
+
+    private fun setUpdateClick(item: Cats) {
+        binding?.addButton?.setOnClickListener {
+            catsDao?.update(item)
+            addNewCatListener?.addInDb(true)
+        }
     }
 
     private fun clearEditTextFields() {
@@ -87,9 +111,10 @@ class AddNew : Fragment() {
     }
 
     companion object {
-        fun newInstance(): AddNew {
+        fun newInstance(model: Cats? = null): AddNew {
             val fragment = AddNew()
-
+            val args = Bundle()
+            args.putSerializable("CatsItem", model)
             return fragment
         }
     }
