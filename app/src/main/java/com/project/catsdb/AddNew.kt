@@ -2,12 +2,14 @@ package com.project.catsdb
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import com.project.catsdb.databinding.AddNewFragmentBinding
 import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
+import java.io.Serializable
 
 class AddNew : Fragment() {
     private var binding: AddNewFragmentBinding? = null
@@ -23,7 +25,7 @@ class AddNew : Fragment() {
         binding = AddNewFragmentBinding.inflate(inflater, container, false)
         return binding?.root
     }
-
+    private var item: Serializable? = null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -33,20 +35,28 @@ class AddNew : Fragment() {
         db = (activity?.application as App).getInstance()?.getDatabase()
         catsDao = db?.catsDao()
 
-        binding?.addButton?.setOnClickListener { addToDB() }
-
-        val item = arguments?.getSerializable("CatsItem")
-
+        item = arguments?.getSerializable("CatsItem")
+        binding?.addButton?.setOnClickListener {
+            if (item != null) {
+               // setUpdateClick(item as Cats)
+                   updateToDb((item as Cats).id)
+                //catsDao?.update(item as Cats)
+                addNewCatListener?.addInDb(true)
+                activity?.onBackPressed()
+            } else addToDB()
+        }
         if (item != null) {
             fillDataForUpdate(item as Cats)
             renameButton()
-            setUpdateClick(item)
+        } else {
+            binding?.addButton?.text = "Add"
+
         }
     }
 
     override fun onResume() {
         super.onResume()
-        clearEditTextFields()
+       // clearEditTextFields()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -81,9 +91,11 @@ class AddNew : Fragment() {
     }
 
     private fun clearEditTextFields() {
-        binding?.idNameET?.text?.clear()
-        binding?.idAgeET?.text?.clear()
-        binding?.idBreedET?.text?.clear()
+        if (item == null) {
+            binding?.idNameET?.text?.clear()
+            binding?.idAgeET?.text?.clear()
+            binding?.idBreedET?.text?.clear()
+        }
     }
 
     private fun addToDB() {
@@ -99,6 +111,24 @@ class AddNew : Fragment() {
 
         catsDao?.insert(newCat)
         addNewCatListener?.addInDb(true)
+        activity?.onBackPressed()
+    }
+
+    fun updateToDb(catId: Int?) {
+        val name = binding?.idNameET?.text.toString()
+        val age = binding?.idAgeET?.text.toString()
+        val breed = binding?.idBreedET?.text.toString()
+
+        val newCat = Cats()
+
+        newCat.id = catId
+        newCat.name = name
+        newCat.age = age
+        newCat.breed = breed
+
+        catsDao?.update(newCat)
+        addNewCatListener?.addInDb(true)
+        activity?.onBackPressed()
     }
 
     fun setInterface(inter: OnAddNewCatInDbListener) {
@@ -111,11 +141,20 @@ class AddNew : Fragment() {
     }
 
     companion object {
-        fun newInstance(model: Cats? = null): AddNew {
+/*        fun newInstance(model: Cats? = null): AddNew {
             val fragment = AddNew()
             val args = Bundle()
             args.putSerializable("CatsItem", model)
             return fragment
+        }*/
+
+        fun newInstance(cat: Cats? = null): AddNew {
+            val fragment = AddNew()
+            val argument = bundleOf("CatsItem" to cat)
+            return fragment.apply {
+                arguments = argument
         }
+    }
+
     }
 }

@@ -12,6 +12,8 @@ import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
 import com.project.catsdb.listeners.OnAddNewCatClickListener
+import com.project.catsdb.listeners.OnItemClickListener
+import com.project.catsdb.listeners.OnSendClickDataToActivity
 
 class MainListOfCats : Fragment() {
 
@@ -20,6 +22,7 @@ class MainListOfCats : Fragment() {
 
     private var binding: ListOfCatsFragmentBinding? = null
     private var floatBtnInterface: OnAddNewCatClickListener? = null
+    private var sendDataInterface: OnSendClickDataToActivity? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +47,9 @@ class MainListOfCats : Fragment() {
         super.onResume()
         fillAdapter()
     }
+
     var watchAdapter: Adapter? = null
+
     private fun fillAdapter() {
         val catsList = catsDao?.getAll()
 
@@ -59,10 +64,21 @@ class MainListOfCats : Fragment() {
                 )
             )
         }
+        watchAdapter?.setListener(object : OnItemClickListener {
+            override fun onVariantClick(model: Cats?) {
+                if (model != null) {
+                    sendDataInterface?.sendData(model)
+                }
+            }
+        })
     }
 
     fun setInterface(inter: OnAddNewCatClickListener) {
         this.floatBtnInterface = inter
+    }
+
+    fun sendDataToActivity(inter: OnSendClickDataToActivity) {
+        this.sendDataInterface = inter
     }
 
     private fun setActionFloatBtn() {

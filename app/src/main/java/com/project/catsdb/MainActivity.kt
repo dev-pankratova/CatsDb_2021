@@ -4,15 +4,16 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
-import com.project.catsdb.listeners.OnAdapterClick
 import com.project.catsdb.listeners.OnAddNewCatClickListener
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
+import com.project.catsdb.listeners.OnSendClickDataToActivity
 import com.project.catsdb.settings.SortingFragment
 
 class MainActivity : AppCompatActivity() {
@@ -26,8 +27,6 @@ class MainActivity : AppCompatActivity() {
     private var _sortingFragment: SortingFragment? = null
     private val sortingFragment get() = _sortingFragment
 
-    private var adapterCats: Adapter? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -37,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         openMainListOfCats()
         setFloatingBtnAction()
         addNewCatInDb()
+        getDataAndSendToUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -54,21 +54,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun openMainListOfCats() {
         _catsListFragment = MainListOfCats.newInstance()
-
-        catsListFragment?.watchAdapter?.getDataFromAdapter(object : OnAdapterClick {
-            override fun getCatsData(cat: Cats) {
-                attachFragment(AddNew.newInstance(cat))
-                //addNewFragment?.let { attachFragment(it) }
-            }
-        })
-
         catsListFragment?.let { attachFragment(it) }
     }
 
     private fun setFloatingBtnAction() {
         catsListFragment?.setInterface(object : OnAddNewCatClickListener {
             override fun btnIsClicked(bool: Boolean) {
-                if (bool) addNewFragment?.let { attachFragment(it) }
+                if (bool) addNewFragment?.let { attachFragment(AddNew.newInstance()) }
             }
         })
     }
@@ -77,6 +69,14 @@ class MainActivity : AppCompatActivity() {
         addNewFragment?.setInterface(object : OnAddNewCatInDbListener {
             override fun addInDb(bool: Boolean) {
                 if (bool) catsListFragment?.let { attachFragment(it) }
+            }
+        })
+    }
+
+    private fun getDataAndSendToUpdate() {
+        catsListFragment?.sendDataToActivity(object : OnSendClickDataToActivity {
+            override fun sendData(cat: Cats) {
+                addNewFragment?.let { attachFragment(AddNew.newInstance(cat))}
             }
         })
     }
