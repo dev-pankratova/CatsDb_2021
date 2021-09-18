@@ -4,13 +4,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
-import com.project.catsdb.db.CatsDao
 import com.project.catsdb.listeners.OnAddNewCatClickListener
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
 import com.project.catsdb.listeners.OnSendClickDataToActivity
@@ -76,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private fun getDataAndSendToUpdate() {
         catsListFragment?.sendDataToActivity(object : OnSendClickDataToActivity {
             override fun sendData(cat: Cats) {
-                addNewFragment?.let { attachFragment(AddNew.newInstance(cat))}
+                addNewFragment?.let { attachFragment(AddNew.newInstance(cat)) }
             }
         })
     }

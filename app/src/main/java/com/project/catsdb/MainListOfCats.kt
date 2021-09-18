@@ -23,6 +23,8 @@ class MainListOfCats : Fragment() {
     private var binding: ListOfCatsFragmentBinding? = null
     private var floatBtnInterface: OnAddNewCatClickListener? = null
     private var sendDataInterface: OnSendClickDataToActivity? = null
+    private var sortedListByPref: List<Cats>? = null
+    private var watchAdapter: Adapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,23 +38,26 @@ class MainListOfCats : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        db = (activity?.application as App).getInstance()?.getDatabase()
-        catsDao = db?.catsDao()
+        val catsList: List<Cats>? = catsDao?.getAll()
+        fillAdapter(catsList)
 
+        initDatabase()
         setActionFloatBtn()
         setClickClearBtn()
+        initSort()
     }
 
     override fun onResume() {
         super.onResume()
-        fillAdapter()
+
     }
 
-    var watchAdapter: Adapter? = null
+    private fun initDatabase() {
+        db = (activity?.application as App).getInstance()?.getDatabase()
+        catsDao = db?.catsDao()
+    }
 
-    private fun fillAdapter() {
-        val catsList = catsDao?.getAll()
-
+    private fun fillAdapter(catsList: List<Cats>?) {
         watchAdapter = catsList?.let { Adapter(it) }
         binding?.recycler?.apply {
             layoutManager = LinearLayoutManager(context)
@@ -64,6 +69,10 @@ class MainListOfCats : Fragment() {
                 )
             )
         }
+        setItemClickListener()
+    }
+
+    private fun setItemClickListener() {
         watchAdapter?.setListener(object : OnItemClickListener {
             override fun onVariantClick(model: Cats?) {
                 if (model != null) {
@@ -113,18 +122,32 @@ class MainListOfCats : Fragment() {
         }
     }
 
+    private fun initSort() {
+        val preferenceIntent = activity?.intent
+        when (preferenceIntent?.dataString) {
+            "sortByName" -> {
+                sortedListByPref = catsDao?.getSortByName()
+                fillAdapter(sortedListByPref)
+            }
+            "sortByAge" -> {
+                sortedListByPref = catsDao?.getSortByAge()
+                fillAdapter(sortedListByPref)
+            }
+            "sortByBreed" -> {
+                sortedListByPref = catsDao?.getSortByBreed()
+                fillAdapter(sortedListByPref)
+            }
+        }
+    }
+
     override fun onDestroy() {
         binding = null
         super.onDestroy()
     }
 
     companion object {
-        fun newInstance(/*model: Cats? = null*/): MainListOfCats {
-            val fragment = MainListOfCats()
-            /*val args = Bundle()
-            args.putSerializable("CatsItem", model)
-            fragment.arguments = args*/
-            return fragment
+        fun newInstance(): MainListOfCats {
+            return MainListOfCats()
         }
     }
 }

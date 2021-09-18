@@ -9,6 +9,6 @@ data class Cats (
     @PrimaryKey
     var id: Int? = null,
     var name: String? = null,
-    var age: String? = null,
+    var age: Int? = null,
     var breed: String? = null
 ): Serializable
