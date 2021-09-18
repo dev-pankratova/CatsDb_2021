@@ -14,6 +14,9 @@ import com.project.catsdb.db.CatsDao
 import com.project.catsdb.listeners.OnAddNewCatClickListener
 import com.project.catsdb.listeners.OnItemClickListener
 import com.project.catsdb.listeners.OnSendClickDataToActivity
+import android.content.Context.MODE_PRIVATE
+
+import android.database.sqlite.SQLiteDatabase
 
 class MainListOfCats : Fragment() {
 
@@ -45,11 +48,7 @@ class MainListOfCats : Fragment() {
         setActionFloatBtn()
         setClickClearBtn()
         initSort()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
+        setSwitchBetweenDbListener()
     }
 
     private fun initDatabase() {
@@ -138,6 +137,12 @@ class MainListOfCats : Fragment() {
                 fillAdapter(sortedListByPref)
             }
         }
+    }
+
+    private fun setSwitchBetweenDbListener() {
+        val db: SQLiteDatabase? = activity?.baseContext?.openOrCreateDatabase("app.db", MODE_PRIVATE, null)
+        db?.execSQL("CREATE TABLE IF NOT EXISTS users (name TEXT, age INTEGER, breed TEXT)")
+
     }
 
     override fun onDestroy() {

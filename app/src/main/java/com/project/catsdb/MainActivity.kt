@@ -3,6 +3,7 @@ package com.project.catsdb
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.project.catsdb.db.Cats
@@ -12,6 +13,8 @@ import com.project.catsdb.listeners.OnSendClickDataToActivity
 import com.project.catsdb.settings.SortingFragment
 
 class MainActivity : AppCompatActivity() {
+
+    val viewModel: CatsViewModel by viewModels()
 
     private var _catsListFragment: MainListOfCats? = null
     private val catsListFragment get() = _catsListFragment
