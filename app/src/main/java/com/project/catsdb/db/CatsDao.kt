@@ -7,7 +7,7 @@ import androidx.room.Database
 @Dao
 interface CatsDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(cat: Cats?)
 
     @Update
@@ -15,9 +15,6 @@ interface CatsDao {
 
     @Query("DELETE FROM Cats")
     fun deleteAll()
-
-/*    @Query("SELECT * FROM Cats WHERE id = :id")
-    fun getById(id: Int): Cats?*/
 
     @Query("SELECT * FROM Cats")
     fun getAll(): List<Cats>?

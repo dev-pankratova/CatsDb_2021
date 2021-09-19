@@ -12,7 +12,7 @@
     </item>
     <item
         android:id="@+id/item2"
-        android:title="Cursor"
+        android:title="SQLite"
         app:showAsAction="always">
     </item>
 

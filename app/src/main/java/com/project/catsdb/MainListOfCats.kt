@@ -17,6 +17,7 @@ import com.project.catsdb.listeners.OnSendClickDataToActivity
 import android.content.Context.MODE_PRIVATE
 
 import android.database.sqlite.SQLiteDatabase
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.project.catsdb.CatsViewModel.Companion.MODE_CURSOR
 import com.project.catsdb.CatsViewModel.Companion.MODE_ROOM
@@ -38,8 +39,6 @@ class MainListOfCats : Fragment() {
     private var sortedListByPref: List<Cats>? = null
     private var watchAdapter: Adapter? = null
 
-    private var modeLocal: String? = null
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,18 +50,19 @@ class MainListOfCats : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        /*val catsList: List<Cats>? = catsDao?.getAll()
-        fillAdapter(catsList)*/
-
+        initOptionsMenu()
         setSwitchBetweenDbListener()
         setActionFloatBtn()
-        initSort()
     }
 
-    private fun initRoomDataBase() {
-        dbRoom = (activity?.application as App).getInstance()?.getDatabase()
-        catsDao = dbRoom?.catsDao()
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).currentFragment = (activity as MainActivity).catsListFragment
+    }
+
+    private fun initOptionsMenu() {
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        setHasOptionsMenu(true)
     }
 
     private fun fillAdapter(catsList: List<Cats>?) {
@@ -121,10 +121,12 @@ class MainListOfCats : Fragment() {
 
     private fun clearRoomDataBase() {
         catsDao?.deleteAll()
+        showToastClearDb("Room")
     }
 
     private fun clearSQLDataBase() {
         sqlOpenHelper?.clearDataBase()
+        showToastClearDb("SQLite")
     }
 
     private fun clearRecyclerView() {
@@ -141,12 +143,12 @@ class MainListOfCats : Fragment() {
         }
     }
 
-    private fun initSort() {
+    private fun initSort(mode: String) {
         val preferenceIntent = activity?.intent
                 when (preferenceIntent?.dataString) {
-                    "sortByName" -> setSortedListByName(modeLocal)
-                    "sortByAge" -> setSortedListByAge(modeLocal)
-                    "sortByBreed" -> setSortedListByBreed(modeLocal)
+                    "sortByName" -> setSortedListByName(mode)
+                    "sortByAge" -> setSortedListByAge(mode)
+                    "sortByBreed" -> setSortedListByBreed(mode)
                 }
             }
 
@@ -179,27 +181,40 @@ class MainListOfCats : Fragment() {
         viewModel.modeDb1.observe(viewLifecycleOwner) {
             when (it) {
                 MODE_ROOM -> {
-                    modeLocal = MODE_ROOM
                     initRoomDataBase()
                     val catsList: List<Cats>? = catsDao?.getAll()
                     fillAdapter(catsList)
                     setClickClearBtn(MODE_ROOM)
                 }
                 MODE_CURSOR -> {
-                    modeLocal = MODE_CURSOR
                     initCursorDataBase()
                     val catsList: List<Cats>? = sqlOpenHelper?.getListOfTopics()
                     fillAdapter(catsList)
                     setClickClearBtn(MODE_CURSOR)
                 }
             }
+            showViews()
+            initSort(it)
         }
+    }
+
+    private fun showViews() {
+        binding?.modeInfoTxt?.visibility = View.GONE
+        binding?.recycler?.visibility = View.VISIBLE
+        binding?.layoutForButtons?.visibility = View.VISIBLE
+    }
+
+    private fun initRoomDataBase() {
+        dbRoom = (activity?.application as App).getInstance()?.getDatabase()
+        catsDao = dbRoom?.catsDao()
     }
 
     private fun initCursorDataBase() {
         sqlOpenHelper = activity?.applicationContext?.let { SQLiteOpenHelper(it) }
-        /*val db: SQLiteDatabase? = activity?.baseContext?.openOrCreateDatabase("app.db", MODE_PRIVATE, null)
-        db?.execSQL("CREATE TABLE IF NOT EXISTS users (name TEXT, age INTEGER, breed TEXT)")*/
+    }
+
+    private fun showToastClearDb(text: String) {
+        Toast.makeText(activity?.applicationContext,"$text DB is cleared", Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroy() {

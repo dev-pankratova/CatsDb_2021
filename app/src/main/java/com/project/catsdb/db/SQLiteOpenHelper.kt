@@ -30,9 +30,7 @@ class SQLiteOpenHelper(context: Context) : SQLiteOpenHelper(
     override fun onCreate(db: SQLiteDatabase) {
         try {
             db.execSQL(CREATE_TABLE_SQL)
-            /*(1..40).forEach {
-                db.execSQL("INSERT INTO $TABLE_NAME ($TOPIC_COLUMN_NAME) VALUES ('Storage Part $it');")
-            }*/
+
         } catch (exception: SQLException) {
             Log.e(LOG_TAG, "Exception while trying to create database", exception)
         }
@@ -63,11 +61,8 @@ class SQLiteOpenHelper(context: Context) : SQLiteOpenHelper(
         return listOfTopics
     }
 
-    //method for saving records in database
     fun saveRecord(cat: Cats): String {
-
-        //val databaseHandler: DatabaseHandler= DatabaseHandler(this)
-        if(cat.name?.trim() != "" && cat.age.toString().trim() != "" && cat.breed?.trim() != "") {
+        if(cat.name?.trim() != "" && cat.age.toString().trim() != "" && cat.age.toString().trim() != "null" && cat.breed?.trim() != "") {
             val status = this.addNewCat(cat)
             if(status > -1) {
                 return "success"
@@ -78,7 +73,6 @@ class SQLiteOpenHelper(context: Context) : SQLiteOpenHelper(
         }
     }
 
-    //method to insert data
     private fun addNewCat(cat: Cats): Long{
         val db = this.writableDatabase
         val contentValues = ContentValues()
@@ -87,8 +81,7 @@ class SQLiteOpenHelper(context: Context) : SQLiteOpenHelper(
         contentValues.put(TOPIC_COLUMN_BREED,cat.breed )
 
         val success = db.insert(TABLE_NAME, null, contentValues)
-        //2nd argument is String containing nullColumnHack
-        db.close() // Closing database connection
+        db.close()
         return success
     }
 
@@ -100,8 +93,7 @@ class SQLiteOpenHelper(context: Context) : SQLiteOpenHelper(
         contentValues.put(TOPIC_COLUMN_BREED,cat.breed )
 
         val success = db.update(TABLE_NAME, contentValues, "id=" + cat.id, null)
-        //2nd argument is String containing nullColumnHack
-        db.close() // Closing database connection
+        db.close()
         return success
     }
 
@@ -168,10 +160,11 @@ class SQLiteOpenHelper(context: Context) : SQLiteOpenHelper(
         return listOfTopics
     }
 
-    //method to delete data
     fun clearDataBase() {
         val db = this.writableDatabase
-        val success = db.delete(TABLE_NAME, null, null)
-        db.close()
+        db.apply {
+            delete(TABLE_NAME, null, null)
+            close()
+        }
     }
 }

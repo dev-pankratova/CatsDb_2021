@@ -13,7 +13,6 @@ import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
 import com.project.catsdb.db.SQLiteOpenHelper
-import com.project.catsdb.listeners.OnAddNewCatInDbListener
 import java.io.Serializable
 
 class AddNew : Fragment() {
@@ -23,7 +22,6 @@ class AddNew : Fragment() {
     private var binding: AddNewFragmentBinding? = null
     private var roomDataBase: AppDatabase? = null
     private var catsDao: CatsDao? = null
-    private var addNewCatListener: OnAddNewCatInDbListener? = null
     private var item: Serializable? = null
 
     private var sqlOpenHelper: SQLiteOpenHelper? = null
@@ -97,7 +95,6 @@ class AddNew : Fragment() {
         binding?.addButton?.setOnClickListener {
             if (item != null) {
                 updateToDb((item as Cats).id)
-                addNewCatListener?.addInDb(true)
                 activity?.onBackPressed()
             } else addToDB()
         }
@@ -123,7 +120,7 @@ class AddNew : Fragment() {
     private fun setAddName() {
         binding?.addButton?.text = resources.getString(R.string.add)
     }
-    var id1: Int = 0
+
     private fun addToDB() {
         val newCat = Cats()
 
@@ -131,33 +128,34 @@ class AddNew : Fragment() {
         val age = binding?.idAgeET?.text.toString()
         val breed = binding?.idBreedET?.text.toString()
 
-        newCat.id = id1 ++
         newCat.name = name
-        newCat.age = age.toInt()
+        if (age.isNotEmpty()) newCat.age = age.toInt()
         newCat.breed = breed
 
         when (viewModel.getModeDb()) {
             MODE_ROOM -> addRecordToRoomDataBase(newCat)
             MODE_CURSOR -> addRecordToSQLDataBase(newCat)
         }
-
-        addNewCatListener?.addInDb(true)
-        activity?.onBackPressed()
     }
 
     private fun addRecordToRoomDataBase(cat: Cats) {
-        catsDao?.insert(cat)
-        // TODO Toast if input data is blank
+        if (cat.name?.trim() != "" && cat.age.toString().trim() != "" && cat.age.toString().trim() != "null" && cat.breed?.trim() != "") {
+            catsDao?.insert(cat)
+            clearFields()
+            showToastRecordSaved("Room")
+            activity?.onBackPressed()
+        } else showEmptyDataToast()
     }
 
     private fun addRecordToSQLDataBase(cat: Cats) {
         val status = sqlOpenHelper?.saveRecord(cat)
         if (status != null) {
             when (status) {
-                "blank" -> Toast.makeText(activity?.applicationContext, "name or age or breed cannot be blank", Toast.LENGTH_LONG).show()
+                "blank" -> showEmptyDataToast()
                 "success" -> {
-                    Toast.makeText(activity?.applicationContext,"record save",Toast.LENGTH_LONG).show()
+                    showToastRecordSaved("SQLite")
                     clearFields()
+                    activity?.onBackPressed()
                 }
             }
         }
@@ -178,20 +176,19 @@ class AddNew : Fragment() {
             MODE_ROOM -> updateRoomDataBase(newCat)
             MODE_CURSOR -> updateSQLDataBase(newCat)
         }
-
-        addNewCatListener?.addInDb(true)
         activity?.onBackPressed()
     }
 
     private fun updateRoomDataBase(cat: Cats?) {
         catsDao?.update(cat)
+        showToastRecordUpdate()
     }
 
     private fun updateSQLDataBase(cat: Cats?) {
         val status = cat?.let { sqlOpenHelper?.updateCatFromSQL(it) }
         if (status != null) {
             if(status > -1) {
-                Toast.makeText(activity?.applicationContext,"record update",Toast.LENGTH_SHORT).show()
+                showToastRecordUpdate()
             }
         }
     }
@@ -202,8 +199,16 @@ class AddNew : Fragment() {
         binding?.idBreedET?.text?.clear()
     }
 
-    fun setInterface(inter: OnAddNewCatInDbListener) {
-        this.addNewCatListener = inter
+    private fun showToastRecordSaved(text: String) {
+        Toast.makeText(activity?.applicationContext,"record saved in the $text",Toast.LENGTH_LONG).show()
+    }
+
+    private fun showEmptyDataToast() {
+        Toast.makeText(activity?.applicationContext, "name or age or breed cannot be blank", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showToastRecordUpdate() {
+        Toast.makeText(activity?.applicationContext,"record update",Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
