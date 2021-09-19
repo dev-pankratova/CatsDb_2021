@@ -1,4 +1,4 @@
-package com.project.catsdb
+package com.project.catsdb.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,7 +12,8 @@ class Adapter(private var listItems: List<Cats>) : RecyclerView.Adapter<Adapter.
 
     private var listener: OnItemClickListener? = null
 
-    inner class ListViewHolder(private val binding: ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ListViewHolder(private val binding: ListItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         val name: TextView = binding.idNameContent
         val age: TextView = binding.idAgeContent
         val breed: TextView = binding.idBreedContent
@@ -30,13 +31,11 @@ class Adapter(private var listItems: List<Cats>) : RecyclerView.Adapter<Adapter.
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val myListItem = listItems[position]
-        //with(holder.binding) {
-            holder.name.text = myListItem.name
-            holder.age.text = myListItem.age.toString()
-            holder.breed.text = myListItem.breed
-        //}
+        holder.name.text = myListItem.name
+        holder.age.text = myListItem.age.toString()
+        holder.breed.text = myListItem.breed
 
-        if(listener != null){
+        if (listener != null) {
             holder.itemView.setOnClickListener {
                 listener!!.onVariantClick(myListItem)
             }

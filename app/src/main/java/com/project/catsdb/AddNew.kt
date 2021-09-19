@@ -2,20 +2,31 @@ package com.project.catsdb
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.project.catsdb.CatsViewModel.Companion.MODE_CURSOR
+import com.project.catsdb.CatsViewModel.Companion.MODE_ROOM
 import com.project.catsdb.databinding.AddNewFragmentBinding
 import com.project.catsdb.db.AppDatabase
 import com.project.catsdb.db.Cats
 import com.project.catsdb.db.CatsDao
+import com.project.catsdb.db.SQLiteOpenHelper
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
 import java.io.Serializable
 
 class AddNew : Fragment() {
+
+    private val viewModel: CatsViewModel by viewModels()
+
     private var binding: AddNewFragmentBinding? = null
-    private var db: AppDatabase? = null
+    private var roomDataBase: AppDatabase? = null
     private var catsDao: CatsDao? = null
     private var addNewCatListener: OnAddNewCatInDbListener? = null
+    private var item: Serializable? = null
+
+    private var sqlOpenHelper: SQLiteOpenHelper? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,15 +37,15 @@ class AddNew : Fragment() {
         return binding?.root
     }
 
-    private var item: Serializable? = null
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         item = arguments?.getSerializable("CatsItem")
 
         initOptionsMenu()
-        initDataBase()
+
+        initDataBaseByMode()
+
         setActionBtnClickListener()
         setButtonName()
     }
@@ -50,6 +61,8 @@ class AddNew : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.findItem(R.id.item1).isVisible = false
+        menu.findItem(R.id.item2).isVisible = false
+        menu.findItem(R.id.item3).isVisible = false
         return super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -58,9 +71,26 @@ class AddNew : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    private fun initDataBase() {
-        db = (activity?.application as App).getInstance()?.getDatabase()
-        catsDao = db?.catsDao()
+    private fun initDataBaseByMode() {
+        viewModel.modeDb1.observe(viewLifecycleOwner) {
+            when (it) {
+                MODE_ROOM -> {
+                    initRoomDataBase()
+                }
+                MODE_CURSOR -> {
+                    initSQLDataBase()
+                }
+            }
+        }
+    }
+
+    private fun initRoomDataBase() {
+        roomDataBase = (activity?.application as App).getInstance()?.getDatabase()
+        catsDao = roomDataBase?.catsDao()
+    }
+
+    private fun initSQLDataBase() {
+        sqlOpenHelper = activity?.applicationContext?.let { SQLiteOpenHelper(it) }
     }
 
     private fun setActionBtnClickListener() {
@@ -93,7 +123,7 @@ class AddNew : Fragment() {
     private fun setAddName() {
         binding?.addButton?.text = resources.getString(R.string.add)
     }
-
+    var id1: Int = 0
     private fun addToDB() {
         val newCat = Cats()
 
@@ -101,13 +131,36 @@ class AddNew : Fragment() {
         val age = binding?.idAgeET?.text.toString()
         val breed = binding?.idBreedET?.text.toString()
 
+        newCat.id = id1 ++
         newCat.name = name
         newCat.age = age.toInt()
         newCat.breed = breed
 
-        catsDao?.insert(newCat)
+        when (viewModel.getModeDb()) {
+            MODE_ROOM -> addRecordToRoomDataBase(newCat)
+            MODE_CURSOR -> addRecordToSQLDataBase(newCat)
+        }
+
         addNewCatListener?.addInDb(true)
         activity?.onBackPressed()
+    }
+
+    private fun addRecordToRoomDataBase(cat: Cats) {
+        catsDao?.insert(cat)
+        // TODO Toast if input data is blank
+    }
+
+    private fun addRecordToSQLDataBase(cat: Cats) {
+        val status = sqlOpenHelper?.saveRecord(cat)
+        if (status != null) {
+            when (status) {
+                "blank" -> Toast.makeText(activity?.applicationContext, "name or age or breed cannot be blank", Toast.LENGTH_LONG).show()
+                "success" -> {
+                    Toast.makeText(activity?.applicationContext,"record save",Toast.LENGTH_LONG).show()
+                    clearFields()
+                }
+            }
+        }
     }
 
     private fun updateToDb(catId: Int?) {
@@ -121,10 +174,32 @@ class AddNew : Fragment() {
         newCat.name = name
         newCat.age = age.toInt()
         newCat.breed = breed
+        when (viewModel.getModeDb()) {
+            MODE_ROOM -> updateRoomDataBase(newCat)
+            MODE_CURSOR -> updateSQLDataBase(newCat)
+        }
 
-        catsDao?.update(newCat)
         addNewCatListener?.addInDb(true)
         activity?.onBackPressed()
+    }
+
+    private fun updateRoomDataBase(cat: Cats?) {
+        catsDao?.update(cat)
+    }
+
+    private fun updateSQLDataBase(cat: Cats?) {
+        val status = cat?.let { sqlOpenHelper?.updateCatFromSQL(it) }
+        if (status != null) {
+            if(status > -1) {
+                Toast.makeText(activity?.applicationContext,"record update",Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun clearFields() {
+        binding?.idNameET?.text?.clear()
+        binding?.idAgeET?.text?.clear()
+        binding?.idBreedET?.text?.clear()
     }
 
     fun setInterface(inter: OnAddNewCatInDbListener) {

@@ -3,9 +3,13 @@ package com.project.catsdb
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.project.catsdb.CatsViewModel.Companion.MODE_CURSOR
+import com.project.catsdb.CatsViewModel.Companion.MODE_ROOM
 import com.project.catsdb.db.Cats
 import com.project.catsdb.listeners.OnAddNewCatClickListener
 import com.project.catsdb.listeners.OnAddNewCatInDbListener
@@ -14,7 +18,7 @@ import com.project.catsdb.settings.SortingFragment
 
 class MainActivity : AppCompatActivity() {
 
-    val viewModel: CatsViewModel by viewModels()
+    private val viewModel: CatsViewModel by viewModels()
 
     private var _catsListFragment: MainListOfCats? = null
     private val catsListFragment get() = _catsListFragment
@@ -31,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         _sortingFragment = SortingFragment.newInstance()
         _addNewFragment = AddNew.newInstance()
+
         openMainListOfCats()
         setFloatingBtnAction()
         addNewCatInDb()
@@ -46,6 +51,18 @@ class MainActivity : AppCompatActivity() {
         val id = item.itemId
         if (id == R.id.item1) {
             sortingFragment?.let { attachFragment(it) }
+        }
+        if (id == R.id.item2) {
+            viewModel.setMode(MODE_CURSOR)
+            viewModel.setModeDb(MODE_CURSOR)
+            item.isChecked = true
+            Toast.makeText(applicationContext, "Включем режим Cursor", LENGTH_SHORT).show()
+        }
+        if (id == R.id.item3) {
+            viewModel.setMode(MODE_ROOM)
+            viewModel.setModeDb(MODE_ROOM)
+            item.isChecked = true
+            Toast.makeText(applicationContext, "Включем режим Room", LENGTH_SHORT).show()
         }
         return super.onOptionsItemSelected(item)
     }

@@ -25,6 +25,8 @@ class SortingFragment : PreferenceFragmentCompat() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.findItem(R.id.item1).isVisible = false
+        menu.findItem(R.id.item2).isVisible = false
+        menu.findItem(R.id.item3).isVisible = false
         return super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -39,9 +41,7 @@ class SortingFragment : PreferenceFragmentCompat() {
 
     companion object {
         fun newInstance(): SortingFragment {
-            val fragment = SortingFragment()
-
-            return fragment
+            return SortingFragment()
         }
     }
 }

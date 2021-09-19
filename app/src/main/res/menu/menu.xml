@@ -6,8 +6,13 @@
         android:id="@+id/mode_group"
         />
     <item
+        android:id="@+id/item3"
+        android:title="Room"
+        app:showAsAction="always">
+    </item>
+    <item
         android:id="@+id/item2"
-        android:title="Mode"
+        android:title="Cursor"
         app:showAsAction="always">
     </item>
 

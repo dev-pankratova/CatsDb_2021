@@ -17,17 +17,28 @@ import com.project.catsdb.listeners.OnSendClickDataToActivity
 import android.content.Context.MODE_PRIVATE
 
 import android.database.sqlite.SQLiteDatabase
+import androidx.fragment.app.viewModels
+import com.project.catsdb.CatsViewModel.Companion.MODE_CURSOR
+import com.project.catsdb.CatsViewModel.Companion.MODE_ROOM
+import com.project.catsdb.adapter.Adapter
+import com.project.catsdb.db.SQLiteOpenHelper
 
 class MainListOfCats : Fragment() {
 
-    private var db: AppDatabase? = null
+    private val viewModel: CatsViewModel by viewModels()
+
+    private var dbRoom: AppDatabase? = null
     private var catsDao: CatsDao? = null
+
+    var sqlOpenHelper: SQLiteOpenHelper? = null
 
     private var binding: ListOfCatsFragmentBinding? = null
     private var floatBtnInterface: OnAddNewCatClickListener? = null
     private var sendDataInterface: OnSendClickDataToActivity? = null
     private var sortedListByPref: List<Cats>? = null
     private var watchAdapter: Adapter? = null
+
+    private var modeLocal: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,19 +52,17 @@ class MainListOfCats : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val catsList: List<Cats>? = catsDao?.getAll()
-        fillAdapter(catsList)
+        /*val catsList: List<Cats>? = catsDao?.getAll()
+        fillAdapter(catsList)*/
 
-        initDatabase()
-        setActionFloatBtn()
-        setClickClearBtn()
-        initSort()
         setSwitchBetweenDbListener()
+        setActionFloatBtn()
+        initSort()
     }
 
-    private fun initDatabase() {
-        db = (activity?.application as App).getInstance()?.getDatabase()
-        catsDao = db?.catsDao()
+    private fun initRoomDataBase() {
+        dbRoom = (activity?.application as App).getInstance()?.getDatabase()
+        catsDao = dbRoom?.catsDao()
     }
 
     private fun fillAdapter(catsList: List<Cats>?) {
@@ -97,14 +106,25 @@ class MainListOfCats : Fragment() {
         floatBtnInterface?.btnIsClicked(true)
     }
 
-    private fun setClickClearBtn() {
+    private fun setClickClearBtn(mode: String) {
         binding?.buttonClear?.setOnClickListener {
-            clearDb()
+            clearDb(mode)
             clearRecyclerView() }
     }
 
-    private fun clearDb() {
+    private fun clearDb(mode: String) {
+        when (mode) {
+            MODE_ROOM -> clearRoomDataBase()
+            MODE_CURSOR -> clearSQLDataBase()
+        }
+    }
+
+    private fun clearRoomDataBase() {
         catsDao?.deleteAll()
+    }
+
+    private fun clearSQLDataBase() {
+        sqlOpenHelper?.clearDataBase()
     }
 
     private fun clearRecyclerView() {
@@ -123,26 +143,63 @@ class MainListOfCats : Fragment() {
 
     private fun initSort() {
         val preferenceIntent = activity?.intent
-        when (preferenceIntent?.dataString) {
-            "sortByName" -> {
-                sortedListByPref = catsDao?.getSortByName()
-                fillAdapter(sortedListByPref)
+                when (preferenceIntent?.dataString) {
+                    "sortByName" -> setSortedListByName(modeLocal)
+                    "sortByAge" -> setSortedListByAge(modeLocal)
+                    "sortByBreed" -> setSortedListByBreed(modeLocal)
+                }
             }
-            "sortByAge" -> {
-                sortedListByPref = catsDao?.getSortByAge()
-                fillAdapter(sortedListByPref)
-            }
-            "sortByBreed" -> {
-                sortedListByPref = catsDao?.getSortByBreed()
-                fillAdapter(sortedListByPref)
+
+
+    private fun setSortedListByName(mode: String?) {
+        when (mode) {
+            MODE_ROOM -> sortedListByPref = catsDao?.getSortByName()
+            MODE_CURSOR -> sortedListByPref = sqlOpenHelper?.getSortByName()
+        }
+        fillAdapter(sortedListByPref)
+    }
+
+    private fun setSortedListByAge(mode: String?) {
+        when (mode) {
+            MODE_ROOM -> sortedListByPref = catsDao?.getSortByAge()
+            MODE_CURSOR -> sortedListByPref = sqlOpenHelper?.getSortByAge()
+        }
+        fillAdapter(sortedListByPref)
+    }
+
+    private fun setSortedListByBreed(mode: String?) {
+        when (mode) {
+            MODE_ROOM -> sortedListByPref = catsDao?.getSortByBreed()
+            MODE_CURSOR -> sortedListByPref = sqlOpenHelper?.getSortByBreed()
+        }
+        fillAdapter(sortedListByPref)
+    }
+
+    private fun setSwitchBetweenDbListener() {
+        viewModel.modeDb1.observe(viewLifecycleOwner) {
+            when (it) {
+                MODE_ROOM -> {
+                    modeLocal = MODE_ROOM
+                    initRoomDataBase()
+                    val catsList: List<Cats>? = catsDao?.getAll()
+                    fillAdapter(catsList)
+                    setClickClearBtn(MODE_ROOM)
+                }
+                MODE_CURSOR -> {
+                    modeLocal = MODE_CURSOR
+                    initCursorDataBase()
+                    val catsList: List<Cats>? = sqlOpenHelper?.getListOfTopics()
+                    fillAdapter(catsList)
+                    setClickClearBtn(MODE_CURSOR)
+                }
             }
         }
     }
 
-    private fun setSwitchBetweenDbListener() {
-        val db: SQLiteDatabase? = activity?.baseContext?.openOrCreateDatabase("app.db", MODE_PRIVATE, null)
-        db?.execSQL("CREATE TABLE IF NOT EXISTS users (name TEXT, age INTEGER, breed TEXT)")
-
+    private fun initCursorDataBase() {
+        sqlOpenHelper = activity?.applicationContext?.let { SQLiteOpenHelper(it) }
+        /*val db: SQLiteDatabase? = activity?.baseContext?.openOrCreateDatabase("app.db", MODE_PRIVATE, null)
+        db?.execSQL("CREATE TABLE IF NOT EXISTS users (name TEXT, age INTEGER, breed TEXT)")*/
     }
 
     override fun onDestroy() {
